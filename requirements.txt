@@ -1,0 +1,19 @@
+# Core deep learning
+tensorflow==2.16.2
+
+# Data & numerics
+numpy==1.26.4
+pandas==2.2.2
+pillow==10.4.0
+opencv-python-headless==4.10.0.84
+
+# Dataset download (public HuggingFace mirror of Kaggle Chest X-Ray Pneumonia)
+datasets==2.20.0
+
+# Evaluation & visualization
+scikit-learn==1.5.1
+matplotlib==3.9.1
+seaborn==0.13.2
+
+# Web app
+streamlit==1.37.1

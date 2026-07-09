@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# OS
+.DS_Store
+
+# Datasets (large — download via src/download_data.py)
+data/raw/
+data/full/
+!data/sample/
+!data/sample/**
+
+# Large model weights (keep the small subset model, ignore big/full ones)
+models/*_full.keras
+models/*.h5
+models/checkpoints/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Logs & caches
+*.log
+.cache/
+logs/
