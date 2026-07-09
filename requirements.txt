@@ -17,3 +17,7 @@ seaborn==0.13.2
 
 # Web app
 streamlit==1.37.1
+
+# Ensures HTTPS cert verification works when Keras downloads the
+# pretrained DenseNet121 weights (fixes SSL errors on macOS).
+certifi
