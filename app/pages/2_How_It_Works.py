@@ -103,7 +103,7 @@ if metrics:
     def show(fig_name: str, caption: str):
         p = FIG / fig_name
         if p.exists():
-            st.image(str(p), caption=caption, use_container_width=True)
+            st.image(str(p), caption=caption, use_column_width=True)
         else:
             st.info(f"`{fig_name}` will appear here after training.")
 

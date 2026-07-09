@@ -36,7 +36,7 @@ if sample_files:
     cols = st.columns(len(sample_files))
     for col, f in zip(cols, sample_files):
         with col:
-            st.image(str(f), caption=f.stem, use_container_width=True)
+            st.image(str(f), caption=f.stem, use_column_width=True)
             if st.button("Use this", key=f.name):
                 chosen_sample = f
 
@@ -76,11 +76,11 @@ if source is not None:
     st.divider()
     img_col1, img_col2 = st.columns(2)
     with img_col1:
-        st.image(result["original"], caption="Uploaded X-ray", use_container_width=True)
+        st.image(result["original"], caption="Uploaded X-ray", use_column_width=True)
     with img_col2:
         st.image(result["gradcam"],
                  caption="Grad-CAM — red/yellow = most influential regions",
-                 use_container_width=True)
+                 use_column_width=True)
 
     with st.expander("How to read the Grad-CAM heatmap"):
         st.write(

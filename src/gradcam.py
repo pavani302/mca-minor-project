@@ -14,16 +14,21 @@ import tensorflow as tf
 from . import config
 
 
-def _find_base_and_layer(model: tf.keras.Model):
-    """Return the nested DenseNet base model and its target conv layer."""
-    base = None
+def _find_base(model: tf.keras.Model) -> tf.keras.Model:
+    """Return the nested DenseNet base model inside the classifier."""
     for layer in model.layers:
         if isinstance(layer, tf.keras.Model):
-            base = layer
-            break
-    if base is None:
-        raise RuntimeError("Could not locate the DenseNet base model inside the classifier.")
-    return base
+            return layer
+    raise RuntimeError("Could not locate the DenseNet base model inside the classifier.")
+
+
+def _head_layers(model: tf.keras.Model, base: tf.keras.Model) -> list:
+    """The classification-head layers that sit on top of the base, in order."""
+    return [
+        layer
+        for layer in model.layers
+        if layer is not base and not isinstance(layer, tf.keras.layers.InputLayer)
+    ]
 
 
 def compute_heatmap(model: tf.keras.Model, preprocessed_image: np.ndarray,
@@ -32,24 +37,29 @@ def compute_heatmap(model: tf.keras.Model, preprocessed_image: np.ndarray,
 
     ``preprocessed_image`` must be a single image already run through the
     DenseNet ``preprocess_input`` step, shaped ``(H, W, 3)`` or ``(1, H, W, 3)``.
+
+    Because the DenseNet backbone is a *nested* Keras model, we can't tap an
+    internal layer via a single functional Model (Keras 3 rejects it). Instead
+    we map the image to the base's final feature map, then re-apply the
+    classification head on top of that tensor inside the gradient tape — so the
+    gradient path from the pneumonia score back to the feature map is intact.
     """
     if preprocessed_image.ndim == 3:
         preprocessed_image = preprocessed_image[np.newaxis, ...]
+    x_in = tf.convert_to_tensor(preprocessed_image, dtype=tf.float32)
 
-    base = _find_base_and_layer(model)
-    target_layer = base.get_layer(layer_name)
-
-    # A model that maps the input image to (conv feature maps, final prediction).
-    # We wire the nested base's target layer output up to the top classifier.
-    grad_model = tf.keras.models.Model(
-        inputs=model.inputs,
-        outputs=[base.get_layer(layer_name).output, model.output],
-    )
+    base = _find_base(model)
+    # Image -> final convolutional feature maps (7x7x1024 for DenseNet121).
+    feature_model = tf.keras.Model(base.inputs, base.output)
+    head = _head_layers(model, base)
 
     with tf.GradientTape() as tape:
-        conv_output, prediction = grad_model(preprocessed_image, training=False)
-        # Binary sigmoid output — gradient of P(pneumonia) w.r.t. feature maps.
-        class_channel = prediction[:, 0]
+        conv_output = feature_model(x_in, training=False)
+        tape.watch(conv_output)
+        x = conv_output
+        for layer in head:                 # gap -> dropout -> dense(sigmoid)
+            x = layer(x, training=False)
+        class_channel = x[:, 0]            # P(pneumonia)
 
     grads = tape.gradient(class_channel, conv_output)
     # Global-average-pool the gradients -> importance weight per feature map.
