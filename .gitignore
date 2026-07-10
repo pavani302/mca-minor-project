@@ -30,3 +30,6 @@ models/checkpoints/
 *.log
 .cache/
 logs/
+
+# Node tooling (only used to generate the .docx report — see docs/build_report.js)
+node_modules/
