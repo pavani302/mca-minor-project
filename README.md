@@ -143,36 +143,14 @@ Matplotlib/Seaborn · Streamlit
 
 ## 📄 Project report
 
-The final report is `Pneumonia_Detection_Final_Report.docx`, generated from
-`docs/build_report.js` (it reads the real `models/metrics.json` and the figures
-in `reports/figures/`). To regenerate it:
-
-```bash
-npm install docx@8.5.0
-node docs/build_report.js
-```
-
-The Table of Contents is typed out statically (so it displays correctly in
-Word and Google Docs without an "update field" step). Page numbers are shown in
-the page footers. To fill exact page numbers into the TOC, render once on a
-machine with LibreOffice and rebuild:
-
-```bash
-# Ubuntu/EC2: sudo apt-get install -y libreoffice
-node docs/build_report.js            # 1st pass (clean outline)
-python docs/compute_toc_pages.py     # renders + computes page numbers
-node docs/build_report.js            # 2nd pass (numbered TOC)
-```
-
-Alternatively, in Google Docs choose **Insert ▸ Table of contents** — it builds
-a numbered, clickable TOC from the report's heading styles.
+The final report is `Pneumonia_Detection_Final_Report.docx`.
 
 ---
 
 ## 🚀 Deploying on Ubuntu / EC2
 
 ```bash
-git clone <repository-url> && cd minorproject
+git clone https://github.com/pavani302/mca-minor-project.git && cd mca-minor-project
 chmod +x deploy.sh && ./deploy.sh     # prompts: small sample or full dataset
 ```
 
